@@ -12,6 +12,7 @@ The PAN159 is based on the Nuvoton Mini58, and I believe it integrates a 2.4GHz 
 ![Bottom side](control-bottom.jpg)
 
 ### Peripherals
+[MCU Pin Mapping](PinMapping.md)
 * Motor drivers - NP9926A dual mosfet x 2
 * Gyro - unknown i2c
 * Pressure sensor - unknown i2c
