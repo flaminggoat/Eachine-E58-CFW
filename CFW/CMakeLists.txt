@@ -12,7 +12,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OBJECT_GEN_FLAGS}" CACHE INTERNAL "C Compi
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OBJECT_GEN_FLAGS}" CACHE INTERNAL "C++ Compiler options")
 set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} ${OBJECT_GEN_FLAGS}" CACHE INTERNAL "ASM Compiler options")
 # Linker flags
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -mfpu=fpv4-sp-d16 -mfloat-abi=softfp -T${LINKER_SCRIPT}" CACHE INTERNAL "Linker options")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -mfloat-abi=soft -T${LINKER_SCRIPT}" CACHE INTERNAL "Linker options")
 
 INCLUDE_DIRECTORIES(
     ${CMAKE_CURRENT_SOURCE_DIR}
@@ -25,7 +25,11 @@ INCLUDE_DIRECTORIES(
 SET(PROJECT_SOURCES
     main.c
     startup.c
+    Library/Device/Nuvoton/Mini58Series/Source/system_Mini58Series.c
     Library/StdDriver/src/gpio.c
+    Library/StdDriver/src/clk.c
+    Library/StdDriver/src/i2c.c
+    Library/StdDriver/src/pwm.c
 )
 
 ADD_EXECUTABLE(${CMAKE_PROJECT_NAME} ${PROJECT_SOURCES})

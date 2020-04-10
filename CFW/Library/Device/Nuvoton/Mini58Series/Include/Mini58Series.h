@@ -134,7 +134,7 @@ typedef enum IRQn {
 #include "system_Mini58Series.h"            /* Mini58 Series System include file                  */
 #include <stdint.h>
 
-#define uint32_t unsigned int
+//#define uint32_t unsigned int
 
 /******************************************************************************/
 /*                Device Specific Peripheral registers structures             */
