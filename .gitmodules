@@ -1,0 +1,3 @@
+[submodule "CFW/cmake-arm-embedded"]
+	path = CFW/cmake-arm-embedded
+	url = https://github.com/jobroe/cmake-arm-embedded.git
