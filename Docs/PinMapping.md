@@ -4,7 +4,7 @@
 2. NC
 3. CSN/SS - NC
 4. P0.0 - NC
-5. P5.3/ADC0 - Tranistor ?
+5. P5.3/ADC0 - LED driver enable
 6. VDD
 7. P1.0/ADC1 - ?
 8. P1.2/ADC2 - ?
@@ -15,10 +15,10 @@
 12. nRST
 13. P3.0/ADC6 - NC
 14. VSS
-15. P0.4/PWM5 - LED 1
+15. P0.4/PWM5 - ?
 16. SCK - NC
 17. P3.1/ADC7 - NC
-18. P3.2/INT0 - LED 2
+18. P3.2/INT0 - Power latch enable, need to set this high after booting
 19. P3.4/SDA - SDA to Gyro + Pressure
 20. P3.5/SCL - SCL to Gyro + Pressure
 

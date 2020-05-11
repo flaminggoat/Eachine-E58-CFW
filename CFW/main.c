@@ -1,6 +1,8 @@
 #include <Mini58Series.h>
 #include <stdbool.h>
 
+#include <lib_driver_xn297l.h>
+
 #define PIN_LED P53
 #define PIN_POWER_LATCH P32
 #define PIN_UNKNOWN_A P04
@@ -36,6 +38,7 @@ static void clock_init(void)
     CLK_EnableModuleClock(I2C0_MODULE);
     CLK_EnableModuleClock(PWMCH01_MODULE);
     CLK_EnableModuleClock(PWMCH23_MODULE);
+    CLK_EnableModuleClock(SPI0_MODULE);
     // CLK_EnableModuleClock(UART0_MODULE);
     // CLK_EnableModuleClock(UART1_MODULE);
     // CLK_EnableModuleClock(ADC_MODULE);
@@ -207,7 +210,7 @@ void pwm_init(void)
     PWM->CLKPSC = (1 << PWM_CLKPSC_CLKPSC01_Pos) | (1 << PWM_CLKPSC_CLKPSC23_Pos);
     PWM->CLKDIV = (1 << PWM_CLKDIV_CLKDIV0_Pos) | (1 << PWM_CLKDIV_CLKDIV1_Pos) | (1 << PWM_CLKDIV_CLKDIV2_Pos) | (1 << PWM_CLKDIV_CLKDIV3_Pos);
     PWM->CTL = PWM_CTL_CNTMODE0_Msk | PWM_CTL_CNTMODE1_Msk | PWM_CTL_CNTMODE2_Msk | PWM_CTL_CNTMODE3_Msk;
-    
+
     PWM->PERIOD0 = 1000;
     PWM->PERIOD1 = 1000;
     PWM->PERIOD2 = 1000;
@@ -218,7 +221,7 @@ void pwm_init(void)
     PWM->CMPDAT2 = 2 * 10;
     PWM->CMPDAT3 = 2 * 10;
 
-	// PWM_ConfigOutputChannel(PWM, 0, 10000, 2);
+    // PWM_ConfigOutputChannel(PWM, 0, 10000, 2);
     // PWM_ConfigOutputChannel(PWM, 1, 10000, 2);
     // PWM_ConfigOutputChannel(PWM, 2, 10000, 2);
     // PWM_ConfigOutputChannel(PWM, 3, 10000, 2);
@@ -226,6 +229,79 @@ void pwm_init(void)
     PWM_Start(PWM, 0b1111);
 
     PWM_EnableOutput(PWM, 0b1111);
+}
+
+static void rf_reciever_init(void)
+{
+    // static uint8_t tx_addr[] = {0xCC, 0x01, 0x00, 0x0C, 0x27};
+    // static uint8_t rx_addr[] = {0x0a, 0x6c, 0x67, 0x9C, 0x46};
+
+    //static uint8_t tx_addr[] = {0x37, 0x5d, 0x0b, 0xdf, 0x02};
+    static uint8_t tx_addr[] = {0xe7,0xe7,0xe7,0xe7,0xe7};
+    static uint8_t rx_addr[] = {0xe7,0xe7,0xe7,0xe7,0xe7};
+
+    // static uint8_t rf_cal_data[]   = {0xf6, 0x37, 0x5d};
+    // static uint8_t rf_cal_data_2[] = {0x40, 0x00, 0x0d, 0x1e, 0x66, 0x66};
+    // static uint8_t bb_cal[]        = {0xd5, 0x21, 0xef, 0x2c, 0x5a};
+    // static uint8_t dem_cal[]       = {0xff};
+    // static uint8_t dem_cal2[]      = {0x0B,0xDF,0x02};
+
+    // from eachine
+    static uint8_t rf_cal_data[]   = {0xF6, 0x37, 0x5D};
+    static uint8_t rf_cal_data_2[] = {0x45, 0x21, 0xEF, 0x2C, 0x5A, 0x40};
+    static uint8_t bb_cal[]        = {0x0a, 0x6d, 0x67, 0x9C, 0x46}; // diff
+    static uint8_t dem_cal[]       = {0x01};
+    static uint8_t dem_cal2[]      = {0x0B, 0xDF, 0x02};
+	
+    // from library
+    // static uint8_t rf_cal_data[]   = {0xF6, 0x3F, 0x5D};
+    // static uint8_t rf_cal_data_2[] = {0x45, 0x21, 0xEF, 0x2C, 0x5A, 0x40};
+    // static uint8_t bb_cal[]        = {0x12, 0xED, 0x67, 0x9C, 0x46};
+    // static uint8_t dem_cal[]       = {0x01};
+    // static uint8_t dem_cal2[]      = {0x0B, 0xDF, 0x02};
+
+    // xn297l_read_buf(TX_ADDR, tx_addr, 5);
+    // xn297l_read_buf(RX_ADDR_P0, rx_addr, 5);
+    // xn297l_read_buf(BB_CAL, bb_cal, 5);
+    // xn297l_read_buf(RF_CAL2, rf_cal_data_2, 6);
+    // xn297l_read_buf(DEM_CAL, dem_cal, 1);
+    // xn297l_read_buf(RF_CAL, rf_cal_data, 3);
+    // xn297l_read_buf(DEM_CAL2, dem_cal2, 3);
+
+    while (true)
+    {
+        delay_ms(200);
+        xn297l_write_reg(0x53, 0x5a);
+        delay_ms(10);
+        xn297l_write_reg(0x53, 0xa5);
+        delay_ms(10);
+        xn297l_clear_fifo();
+        xn297l_clear_status();
+        xn297l_write_reg(0x3d, 0x20);
+        xn297l_write_reg(0xfc, 0);
+        xn297l_write_reg(0x22, 1);
+        xn297l_write_reg(0x23, 3);
+        xn297l_write_reg(0x25, 3);
+        xn297l_write_reg(0x31, 10);
+        xn297l_write_buf(W_REGISTER + TX_ADDR, tx_addr, 5);
+        xn297l_write_buf(W_REGISTER + RX_ADDR_P0, rx_addr, 5);
+        xn297l_write_buf(0x3f, bb_cal, 5);
+        xn297l_write_buf(0x3a, rf_cal_data_2, 6);
+        xn297l_write_buf(0x39, dem_cal, 1);
+        xn297l_write_buf(0x3e, rf_cal_data, 3);
+        xn297l_write_buf(0x3b, dem_cal2, 3);
+        xn297l_write_reg(0x3c, 0);
+        xn297l_write_reg(0x26, 0xb);
+        xn297l_write_reg(0x24, 0);
+        xn297l_write_reg(0x21, 0);
+        uint8_t channel_read = xn297l_read_reg(RF_CH);
+        if (channel_read == 3)
+            break; // Check channel has been set correctly
+        xn297l_write_reg(0x20, 0x8f);
+        delay_ms(2);
+        xn297l_write_reg(0xfd, 0);
+        delay_ms(2);
+    }
 }
 
 int main(void)
@@ -246,19 +322,55 @@ int main(void)
 
     i2c_gyro_init();
 
+    uint8_t data[32] = {0};
+
+    rfspi_init();
+    rf_reciever_init();
+
+    // rf_init();
+    // 0a 6c 67 9c 46
+    //uint8_t addr[] = {0xCC,0x01,0x00,0x0C,0x27};
+    // uint8_t addr[] = {0x0a,0x6c,0x67,0x9C,0x46};
+    // rfspi_init();
+    // while(1)
+    // {
+    //     delay_ms(200);
+    //     xn297l_init(addr,5,3,3,XN297L_RF_DATA_RATE_1M);
+    //     uint8_t x = xn297l_read_reg(RF_CH);
+    //     if (x == 3)
+    //     {
+    //         break;
+    //     }
+    //     xn297l_write_reg(0x20,0x8f);
+    //     delay_ms(2);
+    //     xn297l_write_reg(0xfd,0);
+    //     delay_ms(2);
+    // }
+
+    xn297l_rx_mode();
+
+    // xn297l_read_buf(0, data, 32);
+
+    // uint8_t status = xn297l_get_status();
+    // xn297l_read_reg(RF_CH);
+    // xn297l_read_reg(RF_SETUP);
+
+    while (xn297l_rx_data(data, 32) == 0)
+        ;
+
     static gyro_obj gyro;
 
     for (;;)
     {
         i2c_gyro_read(&gyro);
-        if(gyro.ax > 0)
+        if (gyro.ax > 0)
         {
             PIN_LED = 1;
-        } else
+        }
+        else
         {
             PIN_LED = 0;
         }
-        
     }
 
     return 0;

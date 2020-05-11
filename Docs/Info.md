@@ -14,9 +14,9 @@ The PAN159 is based on the Nuvoton Mini58, and I believe it integrates a 2.4GHz 
 ### Peripherals
 [MCU Pin Mapping](PinMapping.md)
 * Motor drivers - NP9926A dual mosfet x 2
-* Gyro - unknown i2c addr 0x69
-* Pressure sensor - unknown i2c addr 0x77 possibly bmp280
-* Crystal - 16MHz
+* Gyro - I2C Addr 0x69 - seems to be an MPU-6050
+* Pressure sensor - I2C Addr 0x77 possibly bmp280
+* Crystal - 16MHz This seems to only be used for the RF transciever
 
 ### Debugging
 The PAN159 supports SWD and there labeled test pads on the underside of the control board. Using [Nuvoton's opencd fork](https://github.com/OpenNuvoton/OpenOCD-Nuvoton), you are able to connect to the MCU using an ST-Link or other compatible debugger.

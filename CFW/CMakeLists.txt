@@ -30,6 +30,10 @@ SET(PROJECT_SOURCES
     Library/StdDriver/src/clk.c
     Library/StdDriver/src/i2c.c
     Library/StdDriver/src/pwm.c
+    Library/StdDriver/driver/lib_driver_rfspi_pan159.c
+    Library/StdDriver/driver/lib_driver_xn297l.c
+    Library/StdDriver/driver/lib_driver_delay_pan159.c
+    Library/StdDriver/src/spi.c
 )
 
 ADD_EXECUTABLE(${CMAKE_PROJECT_NAME} ${PROJECT_SOURCES})
