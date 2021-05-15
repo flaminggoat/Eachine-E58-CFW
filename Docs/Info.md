@@ -20,3 +20,7 @@ The PAN159 is based on the Nuvoton Mini58, and I believe it integrates a 2.4GHz 
 
 ### Debugging
 The PAN159 supports SWD and there labeled test pads on the underside of the control board. Using [Nuvoton's opencd fork](https://github.com/OpenNuvoton/OpenOCD-Nuvoton), you are able to connect to the MCU using an ST-Link or other compatible debugger.
+
+```
+./openocd -f ../tcl/interface/stlink-v2.cfg -f ../tcl/target/numicroM0.cfg
+```

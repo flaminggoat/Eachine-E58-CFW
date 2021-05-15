@@ -3,15 +3,25 @@
 
 #include <lib_driver_xn297l.h>
 
+#include <bindings.h>
+
+// #include "silverware/drv_time.h"
+// #include "silverware/sixaxis.h"
+
 #define PIN_LED P53
 #define PIN_POWER_LATCH P32
 #define PIN_UNKNOWN_A P04
 
-typedef struct gyro_obj
-{
-    int16_t ax, ay, az, gx, gy, gz;
-    int16_t temp;
-} gyro_obj;
+// typedef struct gyro_obj
+// {
+//     int16_t ax, ay, az, gx, gy, gz;
+//     int16_t temp;
+// } gyro_obj;
+
+// typedef struct control_obj
+// {
+//     uint8_t throttle, yaw, pitch, roll;
+// } control_obj;
 
 static void clock_init(void)
 {
@@ -47,7 +57,7 @@ static void clock_init(void)
     // CLK_EnableModuleClock(PWMCH01_MODULE);
     // CLK_EnableModuleClock(PWMCH23_MODULE);
 
-    //SystemCoreClockUpdate();
+    SystemCoreClockUpdate();
     //volatile uint32_t xx = CLK_GetPLLClockFreq();
     //volatile uint32_t yy = CLK_GetHCLKFreq();
     /* Lock protected registers */
@@ -124,7 +134,7 @@ bool i2c_gyro_init(void)
     return true;
 }
 
-bool i2c_gyro_read(gyro_obj *gyro)
+bool i2c_gyro_read(Gyro *gyro)
 {
     // -------------- select reg for accel
     I2C_START(I2C0);
@@ -211,15 +221,15 @@ void pwm_init(void)
     PWM->CLKDIV = (1 << PWM_CLKDIV_CLKDIV0_Pos) | (1 << PWM_CLKDIV_CLKDIV1_Pos) | (1 << PWM_CLKDIV_CLKDIV2_Pos) | (1 << PWM_CLKDIV_CLKDIV3_Pos);
     PWM->CTL = PWM_CTL_CNTMODE0_Msk | PWM_CTL_CNTMODE1_Msk | PWM_CTL_CNTMODE2_Msk | PWM_CTL_CNTMODE3_Msk;
 
-    PWM->PERIOD0 = 1000;
-    PWM->PERIOD1 = 1000;
-    PWM->PERIOD2 = 1000;
-    PWM->PERIOD3 = 1000;
+    PWM->PERIOD0 = 100;
+    PWM->PERIOD1 = 100;
+    PWM->PERIOD2 = 100;
+    PWM->PERIOD3 = 100;
 
-    PWM->CMPDAT0 = 2 * 10;
-    PWM->CMPDAT1 = 2 * 10;
-    PWM->CMPDAT2 = 2 * 10;
-    PWM->CMPDAT3 = 2 * 10;
+    PWM->CMPDAT0 = 0;
+    PWM->CMPDAT1 = 0;
+    PWM->CMPDAT2 = 0;
+    PWM->CMPDAT3 = 0;
 
     // PWM_ConfigOutputChannel(PWM, 0, 10000, 2);
     // PWM_ConfigOutputChannel(PWM, 1, 10000, 2);
@@ -247,12 +257,12 @@ static void rf_reciever_init(void)
     // static uint8_t dem_cal2[]      = {0x0B,0xDF,0x02};
 
     // from eachine
-    static uint8_t rf_cal_data[]   = {0xF6, 0x37, 0x5D};
+    static uint8_t rf_cal_data[] = {0xF6, 0x37, 0x5D};
     static uint8_t rf_cal_data_2[] = {0xd5, 0x21, 0xEF, 0x2C, 0x5A, 0x40};
-    static uint8_t bb_cal[]        = {0x0a, 0x6c, 0x67, 0x9C, 0x46}; // diff
-    static uint8_t dem_cal[]       = {0x01};
-    static uint8_t dem_cal2[]      = {0x0B, 0xDF, 0x02};
-	
+    static uint8_t bb_cal[] = {0x0a, 0x6c, 0x67, 0x9C, 0x46}; // diff
+    static uint8_t dem_cal[] = {0x01};
+    static uint8_t dem_cal2[] = {0x0B, 0xDF, 0x02};
+
     // from library
     // static uint8_t rf_cal_data[]   = {0xF6, 0x3F, 0x5D};
     // static uint8_t rf_cal_data_2[] = {0x45, 0x21, 0xEF, 0x2C, 0x5A, 0x40};
@@ -310,6 +320,72 @@ static void rf_reciever_init(void)
     }
 }
 
+static void controls_read(Controls *controls, uint8_t *data)
+{
+    controls->throttle = data[3];
+    controls->yaw = data[4];
+    controls->pitch = data[5];
+    controls->roll = data[6];
+}
+
+void bind()
+{
+    volatile uint8_t channel = 70;
+
+    // TODO Bind properly
+    // For now we know the transmitter uses channel 70 on my unit
+    // Maybe all e58 do, im not sure
+    xn297l_clear_status();
+    xn297l_clear_fifo();
+    xn297l_set_channel(channel);
+    xn297l_rx_mode();
+
+    // while (xn297l_rx_data(data, 10) == 0)
+    // {
+    //     delay_ms(10);
+    // }
+    // count++;
+    // xn297l_clear_status();
+    // xn297l_clear_fifo();
+
+    // if (data[0] == 0x02)
+    // {
+    //     uint32_t a = data[1];
+    //     uint32_t b = data[2];
+    //     //channel = ((uint32_t)data[1] + ((uint32_t)data[2] & 0x1f)) + 0x28;
+    //     channel = a + b;
+    //     channel <<= 0x1b;
+    //     channel >>= 0x1b;
+    //     channel += 0x28;
+    //     channel &= 0xff;
+    //     xn297l_set_channel(channel);
+    //     xn297l_rx_mode();
+    // }
+
+    // channel = xn297l_read_reg(RF_CH);
+
+    // uint8_t data[10];
+    // while (1)
+    // {
+    //     for (int i=0; i<100; i++)
+    //     {
+    //         if(xn297l_rx_data(data, 10) != 0){
+    //             while(1){
+    //                 // channel = xn297l_read_reg(RF_CH);
+    //                 xn297l_rx_data(data, 10);
+    //                 delay_ms(10);
+    //             }
+    //         }
+    //         delay_ms(10);
+    //     }
+    //     xn297l_clear_status();
+    //     xn297l_clear_fifo();
+    //     channel++;
+    //     xn297l_set_channel(channel);
+    //     xn297l_rx_mode();
+    // }
+}
+
 int main(void)
 {
     SYS->P5_MFP &= SYS_MFP_P53_Msk;
@@ -325,63 +401,63 @@ int main(void)
     clock_init();
     pwm_init();
     i2c_init();
+    // time_init();
 
     i2c_gyro_init();
-
-    uint8_t data[32] = {0};
+    // sixaxis_init();
+    // gyro_cal();
 
     rfspi_init();
     rf_reciever_init();
-
-    // rf_init();
-    // 0a 6c 67 9c 46
-    // uint8_t addr[] = {0xe7,0xe7,0xe7,0xe7,0xe7};
-    // rfspi_init();
-    // while(1)
-    // {
-    //     delay_ms(200);
-    //     xn297l_init(addr,5,3,10,XN297L_RF_DATA_RATE_1M);
-    //     uint8_t x = xn297l_read_reg(RF_CH);
-    //     if (x == 3)
-    //     {
-    //         break;
-    //     }
-    //     xn297l_write_reg(0x20,0x8f);
-    //     delay_ms(2);
-    //     xn297l_write_reg(0xfd,0);
-    //     delay_ms(2);
-    // }
-
     xn297l_rx_mode();
 
-    // xn297l_read_buf(0, data, 32);
+    bind();
 
-    // uint8_t status = xn297l_get_status();
-    // xn297l_read_reg(RF_CH);
-    // xn297l_read_reg(RF_SETUP);
-
-    int chan = 0;
-    while (xn297l_rx_data(data, 32) == 0)
-    {
-        // xn297l_set_channel(chan);
-        // xn297l_rx_mode();
-        // chan = (chan + 1) & 0x7f;
-        delay_ms(100);
-    }
-
-    static gyro_obj gyro;
+    static Gyro gyro;
+    static Controls controls;
+    static Motors motors;
 
     for (;;)
     {
+        uint8_t data[10];
+        if (xn297l_rx_data(data, 10) != 0)
+        {
+            controls_read(&controls, data);
+            if (controls.throttle < 10)
+            {
+                PWM->CMPDAT0 = 0;
+                PWM->CMPDAT1 = 0;
+                PWM->CMPDAT2 = 0;
+                PWM->CMPDAT3 = 0;
+                while(1)
+                {
+                    
+                }
+            }
+            // if(data[6] > 0x80) {
+            //     PIN_LED = 1;
+            // } else {
+            //     PIN_LED = 0;
+            // }
+        }
         i2c_gyro_read(&gyro);
-        if (gyro.ax > 0)
-        {
-            PIN_LED = 1;
-        }
-        else
-        {
-            PIN_LED = 0;
-        }
+        control_loop(&gyro, &controls, &motors);
+
+        PWM->CMPDAT0 = motors.a;
+        PWM->CMPDAT1 = motors.b;
+        PWM->CMPDAT2 = motors.c;
+        PWM->CMPDAT3 = motors.d;
+
+        // gyro_read();
+
+        // if (gyro.ax > 0)
+        // {
+        //     PIN_LED = 1;
+        // }
+        // else
+        // {
+        //     PIN_LED = 0;
+        // }
     }
 
     return 0;

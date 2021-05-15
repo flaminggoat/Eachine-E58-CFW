@@ -9,6 +9,7 @@ extern unsigned long _stack_end;
 
 int main(void);
 void handler_default(void);
+void SysTick_Handler(void);
 
 void reset_handler(void)
 {
@@ -46,7 +47,7 @@ __attribute__((section(".interrupt_vector"))) void (*const table_interrupt_vecto
         handler_default,     // 12
         0,                   // 13
         handler_default,     // 14
-        handler_default,     // 15
+        SysTick_Handler,     // 15
         // peripherals
         handler_default, // 0
         handler_default, // 1
@@ -166,5 +167,11 @@ void HardFault_HandlerC(unsigned long *hardfault_args)
 
     __asm("BKPT #0\n"); // Break into the debugger
 
-    for(;;);
+    for (;;)
+        ;
 }
+
+__attribute__((weak)) void SysTick_Handler(void)
+{
+}
+

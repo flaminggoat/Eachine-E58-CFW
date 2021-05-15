@@ -1,0 +1,12 @@
+(gdb) p/x rx_addr                                                                                                                     
+$6 = {0xe7, 0xe7, 0xe7, 0xe7, 0xe7}                                                                                                   
+(gdb) p/x bb_cal                                                                                                                      
+$7 = {0xa, 0x6d, 0x67, 0x9c, 0x46}                                                                                                    
+(gdb) p/x rf_cal_data_2                                            
+$8 = {0x45, 0x21, 0xef, 0x2c, 0x5a, 0x40}                          
+(gdb) p/x dem_cal                                                                                                                     
+$9 = {0x1}                                                         
+(gdb) p/x rf_cal_data                                                                                                                 
+$10 = {0xf6, 0x37, 0x5d}                                           
+(gdb) p/x dem_cal2                                                                                                                    
+$11 = {0xb, 0xdf, 0x2}  

@@ -127,7 +127,7 @@ extern "C"{
 
 #define     CE_SOFTWARE_MODE      	1                             //CE软件模式
 #define     CE_HARDWARE_MODE       	2                             //CE硬件模式
-#define     CE_TYPE           		CE_HARDWARE_MODE              //设置为硬件模式
+#define     CE_TYPE           		CE_SOFTWARE_MODE              //设置为硬件模式
 
 #define IRQ_STATUS  rfspi_irq()
 #define CSN_HIGH   P01=1 
