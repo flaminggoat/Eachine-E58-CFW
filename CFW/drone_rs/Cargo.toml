@@ -1,0 +1,19 @@
+[package]
+name = "drone_rs"
+version = "0.1.0"
+authors = ["Theo Hussey <husseytg@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+name = "drone"
+crate-type = ["staticlib"]
+
+[build-dependencies]
+cbindgen = "0.14.4"
+
+[dependencies]
+panic-halt = "0.2.0"
+pid = "2.1.0"
+cortex-m-semihosting = "0.3.5"
